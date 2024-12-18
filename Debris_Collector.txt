@@ -1,0 +1,176 @@
+setSize(1000,480);
+
+let earthOne = new WebImage("https://codehs.com/uploads/2b67aef07fea12f5506f44b33ebe9782");
+let earthTwo = new WebImage("https://codehs.com/uploads/24cda7859ac751891ee2b2bf6f5a2cf0");
+let randomDebris = ["https://codehs.com/uploads/22e296e01bf9c36fc728dcf7fac934db", "https://codehs.com/uploads/7267fef5f92c1b67ac11f58e32af967a", "https://codehs.com/uploads/532b64c3f5b46532dd9cbe363abe6f05"]
+let spaceDebris = new WebImage(randomDebris[Randomizer.nextInt(0,2)]);
+spaceDebris.setSize(150,150);
+
+let time;
+let timer = 10;
+let gameStart = false;
+let record = window.localStorage.getItem("record");
+let score = 0;
+let displayRecord;
+let displayScore;
+
+let mainTxt;
+let start; // Start Text
+
+let isGameOver = false;
+
+
+function main(){
+   let spaceIMG = new WebImage("https://codehs.com/uploads/54c1e2767485cefb796cba8dee306880");
+    
+    earthOne.setSize(1000, 120);
+    earthOne.setPosition(0, 360);
+    earthTwo.setPosition(1000, 360);
+    earthTwo.setSize(1000, 120);
+    spaceIMG.setSize(1000,480);
+    add(spaceIMG);
+    add(earthOne);
+    add(earthTwo);
+    
+    mainTxt = new Text("Debris Collector", "50pt Space Mono")
+    mainTxt.setPosition(getWidth()/2 - mainTxt.getWidth()/2, getHeight()/2 - mainTxt.getHeight()/2);
+    mainTxt.setColor("White");
+    add(mainTxt);
+    
+    start = new Text("Press Space To Start", "30pt Space Mono");
+    start.setPosition(getWidth()/2 - start.getWidth()/2, getHeight()/2 - start.getHeight()/2 + 30);
+    start.setColor("White");
+    add(start);
+    
+    if(record == null){
+        record = 0;
+    }
+    
+    displayRecord = new Text("High Score: " + record, "30pt Space Mono");
+    displayRecord.setPosition(0,480);
+    displayRecord.setColor("White");
+    add(displayRecord);
+    
+    displayScore = new Text("Score: " + score, "30pt Space Mono");
+    displayScore.setPosition(getWidth() - displayScore.getWidth() - 60,480);
+    displayScore.setColor("White");
+    add(displayScore);
+    
+    time = new Text("Time: ", "30pt Space Mono");
+    time.setColor("White");
+    time.setPosition(0,30);
+    add(time);
+    
+    keyDownMethod(keyDown);
+    mouseClickMethod(collect);
+}
+main();
+
+function spawnDebris(){
+    if(gameStart == true){
+        spaceDebris.setPosition(Randomizer.nextInt(0,850), Randomizer.nextInt(0,330));
+        add(spaceDebris);
+        stopTimer(spawnDebris);
+        
+        time.setText("Time: " + timer);
+        setTimer(countTime, 1000);
+        setTimer(updateNum, 0);
+    }
+}
+setTimer(spawnDebris, 1000);
+
+function scroll(){
+    earthOne.move(-5,0);
+    earthTwo.move(-5,0);
+    if(earthOne.getX() + 1000 <= 0){
+        earthOne.setPosition(1000, 360);
+    }
+    if(earthTwo.getX() + 1000 <= 0){
+        earthTwo.setPosition(1000, 360)
+    }
+}
+
+setTimer(scroll, 0);
+
+function randomizeDebris(){
+    spaceDebris.setImage(randomDebris[Randomizer.nextInt(0,2)]);
+    spaceDebris.setPosition(Randomizer.nextInt(0,850), Randomizer.nextInt(0,330));
+    spaceDebris.setSize(150,150);
+}
+
+function keyDown(e){
+    if(e.key == " " && !gameStart){
+        gameStart = true;
+        remove(mainTxt);
+        remove(start);
+    }
+    
+    if(e.key == " " && isGameOver == true){
+        isGameOver == false;
+        remove(txt);
+        remove(txt2);
+        gameStart = true;
+        timer = 10;
+        score = 0;
+        setTimer(spawnDebris, 1000);
+        
+    }
+}
+
+function collect(e){
+    let elem = getElementAt(e.getX(), e.getY());
+    if(elem == spaceDebris){
+        score++;
+        randomizeDebris();
+    }
+}
+function countTime(){
+    timer--;
+    if(timer == 0){
+        stopTimer(countTime);
+        remove(spaceDebris);
+        isGameOver = true;
+        gameOver();
+    }
+}
+
+function updateNum(){
+    displayScore.setText("Score: " + score);
+    time.setText("Time: " + timer);
+}
+
+let txt;
+let txt2;
+
+
+function gameOver(){
+    if(isGameOver = true){
+        gameStart = false;
+        if(score > record){
+            record = score;
+            window.localStorage.setItem("record", score);
+            displayRecord.setText("High Score: " + record);
+            txt = new Text("NEW HIGH SCORE!!!", "50pt Space Mono");
+            txt.setPosition(getWidth()/2 - txt.getWidth()/2, getHeight()/2 - txt.getHeight()/2);
+            txt.setColor("White");
+            add(txt);
+            
+            txt2 = new Text("Press Space To Replay", "30pt Space Mono");
+            txt2.setPosition(getWidth()/2 - txt2.getWidth()/2, getHeight()/2 - txt2.getHeight()/2 + 30);
+            txt2.setColor("White");
+            add(txt2);
+            
+        } else{
+            txt = new Text("Game Over", "50pt Space Mono");
+            txt.setPosition(getWidth()/2 - txt.getWidth()/2, getHeight()/2 - txt.getHeight()/2);
+            txt.setColor("White");
+            add(txt);
+        
+            txt2 = new Text("Press Space To Replay", "30pt Space Mono");
+            txt2.setPosition(getWidth()/2 - txt2.getWidth()/2, getHeight()/2 - txt2.getHeight()/2 + 30);
+            txt2.setColor("White");
+            add(txt2);
+        }
+    }
+    
+}
